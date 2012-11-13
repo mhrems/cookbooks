@@ -12,7 +12,30 @@
 # install ems package
 # ntpdate ntp.ubuntu.com
 
+package "ganglia-monitor" do
+	action :install
+end
 
+puts node[:gmond][:cluster_name]
+puts node[:gmond][:udp_send_channel_ip]
+puts node[:gmond][:udp_send_channel_port]
+
+template "/etc/ganglia/gmond.conf" do
+    source "gmond.conf.erb"
+    variables( :cluster_name => node[:gmond][:cluster_name],
+               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
+               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
+    notifies :restart, "service[ganglia-monitor]"
+end
+
+service "ganglia-monitor" do
+    pattern "gmond"
+  	supports :restart => true
+  	action [ :enable, :start ]
+end
+
+
+=begin
 # install ems package
 
 
@@ -135,7 +158,7 @@ execute "ems syncdb" do
 end
 
 
-
+=end
 
 
 
