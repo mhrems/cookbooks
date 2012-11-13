@@ -147,6 +147,11 @@ service "gmetad" do
 end
 
 
+
+package "fabric" do
+	action :install
+end
+
 package "rrdtool" do
 	action :install
 end
@@ -192,10 +197,6 @@ package "python-matplotlib" do
 end
 
 # install wadofstuff
-
-
-
-
 
 execute "get wadofstuff" do
 	not_if = "find /usr/local/lib/python2.7/dist-packages/ -name wadofstuff"
