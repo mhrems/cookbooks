@@ -1,4 +1,4 @@
-default[:ems][:is_install] = false
+default[:ems][:is_install] = true
 default[:ems][:database_name] = "ems"
 default[:ems][:database_mysql_password] = "mhrinc01"
 
