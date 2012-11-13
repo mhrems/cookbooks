@@ -12,6 +12,8 @@
 # install ems package
 # ntpdate ntp.ubuntu.com
 
+=begin
+
 package "ganglia-monitor" do
 	action :install
 end
@@ -34,8 +36,40 @@ service "ganglia-monitor" do
   	action [ :enable, :start ]
 end
 
+package "gmetad" do
+	action :install
+end
 
-=begin
+puts node[:gmetad][:data_source]
+puts node[:gmetad][:xml_port]
+puts node[:gmetad][:trusted_hosts]
+
+template "/etc/ganglia/gmetad.conf" do
+    source "gmetad.conf.erb"
+    variables( :data_source => node[:gmetad][:data_source],
+               :xml_port => node[:gmetad][:xml_port],
+               :trusted_hosts => node[:gmetad][:trusted_hosts] )
+    notifies :restart, "service[gmetad]"
+end
+
+service "gmetad" do
+    pattern "gmetad"
+  	supports :restart => true
+  	action [ :enable, :start ]
+end
+
+puts node[:ems][:database_name]
+puts node[:ems][:database_mysql_password]
+
+
+template "/root/welcomerain/welcome_rain/settings.py" do
+    source "ems.setting.erb"
+    variables( :database_name => node[:ems][:database_name],
+               :database_mysql_password => node[:ems][:database_mysql_password] )
+end
+
+=end
+
 # install ems package
 
 
@@ -50,6 +84,12 @@ execute "clone ems file" do
 end
 
 
+template "/root/welcomerain/welcome_rain/settings.py" do
+    source "ems.setting.erb"
+    variables( :database_name => node[:ems][:database_name],
+               :database_mysql_password => node[:ems][:database_mysql_password] )
+end
+
 # install mysql-server
 
 package "mysql-server" do
@@ -57,14 +97,14 @@ package "mysql-server" do
 end
 
 execute "assign-root-password" do
-	not_if "mysql -u root -pmhrinc"
-	command "mysqladmin -u root password mhrinc"
+	not_if "mysql -u root -p#{node[:ems][:database_mysql_password]}"
+	command "mysqladmin -u root password #{node[:ems][:database_mysql_password]}"
 	action :run
 end
 
 execute "create db" do
-	not_if "mysql -uroot -pmhrinc welcome_rain"
-	command "mysql -uroot -pmhrinc --init-command='create database welcome_rain;'"
+	not_if "mysql -uroot -p#{node[:ems][:database_mysql_password]} #{node[:ems][:database_name]}"
+	command "mysql -uroot -p#{node[:ems][:database_mysql_password]} --init-command='create database #{node[:ems][:database_name]};'"
 	action :run
 end
 
@@ -74,9 +114,38 @@ package "ganglia-monitor" do
 	action :install
 end
 
+template "/etc/ganglia/gmond.conf" do
+    source "gmond.conf.erb"
+    variables( :cluster_name => node[:gmond][:cluster_name],
+               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
+               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
+    notifies :restart, "service[ganglia-monitor]"
+end
+
+service "ganglia-monitor" do
+    pattern "gmond"
+  	supports :restart => true
+  	action [ :enable, :start ]
+end
+
 package "gmetad" do
 	action :install
 end
+
+template "/etc/ganglia/gmetad.conf" do
+    source "gmetad.conf.erb"
+    variables( :data_source => node[:gmetad][:data_source],
+               :xml_port => node[:gmetad][:xml_port],
+               :trusted_hosts => node[:gmetad][:trusted_hosts] )
+    notifies :restart, "service[gmetad]"
+end
+
+service "gmetad" do
+    pattern "gmetad"
+  	supports :restart => true
+  	action [ :enable, :start ]
+end
+
 
 package "rrdtool" do
 	action :install
@@ -157,8 +226,6 @@ execute "ems syncdb" do
 	action :run
 end
 
-
-=end
 
 
 
