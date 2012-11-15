@@ -24,7 +24,8 @@ end
 execute "clone ems file" do
 	cwd "/root"
 	not_if "python welcomerain/manage.py test"
-	command "hg clone https://mhrbond:mhrtest@bitbucket.org/mhrjames/welcomerain"
+	command "git clone https://github.com/mhrems/welcomerain.git"
+	#command "hg clone https://mhrbond:mhrtest@bitbucket.org/mhrjames/welcomerain"
 end
 
 
@@ -227,16 +228,16 @@ when "ubuntu", "debian"
 	end
 when "redhat", "centos", "fedora"
 	
-	package "scipy.x86_64" do
-		action :install
+	execute "scipy.x86_64" do
+		command :"yum install -y scipy.x86_64"
 	end
 
 	package "MySQL-python" do
 		action :install
 	end
 	
-	package "python-matplotlib.x86_64" do
-		action :install
+	execute "python-matplotlib.x86_64" do
+		command :"yum install -y python-matplotlib.x86_64"
 	end
 
 end
