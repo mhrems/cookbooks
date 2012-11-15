@@ -12,63 +12,12 @@
 # install ems package
 # ntpdate ntp.ubuntu.com
 
-=begin
-
-package "ganglia-monitor" do
-	action :install
+when "ubuntu", "debian"
+	
+	echo "123"
+when "redhat", "centos", "fedora"
+	echo "456"
 end
-
-puts node[:gmond][:cluster_name]
-puts node[:gmond][:udp_send_channel_ip]
-puts node[:gmond][:udp_send_channel_port]
-
-template "/etc/ganglia/gmond.conf" do
-    source "gmond.conf.erb"
-    variables( :cluster_name => node[:gmond][:cluster_name],
-               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
-               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
-    notifies :restart, "service[ganglia-monitor]"
-end
-
-service "ganglia-monitor" do
-    pattern "gmond"
-  	supports :restart => true
-  	action [ :enable, :start ]
-end
-
-package "gmetad" do
-	action :install
-end
-
-puts node[:gmetad][:data_source]
-puts node[:gmetad][:xml_port]
-puts node[:gmetad][:trusted_hosts]
-
-template "/etc/ganglia/gmetad.conf" do
-    source "gmetad.conf.erb"
-    variables( :data_source => node[:gmetad][:data_source],
-               :xml_port => node[:gmetad][:xml_port],
-               :trusted_hosts => node[:gmetad][:trusted_hosts] )
-    notifies :restart, "service[gmetad]"
-end
-
-service "gmetad" do
-    pattern "gmetad"
-  	supports :restart => true
-  	action [ :enable, :start ]
-end
-
-puts node[:ems][:database_name]
-puts node[:ems][:database_mysql_password]
-
-
-template "/root/welcomerain/welcome_rain/settings.py" do
-    source "ems.setting.erb"
-    variables( :database_name => node[:ems][:database_name],
-               :database_mysql_password => node[:ems][:database_mysql_password] )
-end
-
-=end
 
 # install ems package
 
@@ -109,7 +58,12 @@ execute "create db" do
 end
 
 # ganglia install
-
+# yum install ganglia-gmond
+# chkconfig gmond on
+# service gmond start
+# yum install ganglia-gmetad
+# chkconfig gmetad on
+# service gmetad start
 package "ganglia-monitor" do
 	action :install
 end
@@ -131,6 +85,8 @@ end
 package "gmetad" do
 	action :install
 end
+
+
 
 template "/etc/ganglia/gmetad.conf" do
     source "gmetad.conf.erb"
@@ -165,36 +121,68 @@ end
 package "python-pip" do
 	action :install
 end
-
-execute "django_nose-pip" do
-	command "pip install django_nose"
-	action :run
+when "ubuntu", "debian"
+	execute "django_nose-pip" do
+		command "pip install django_nose"
+		action :run
+	end
+	execute "pytz-pip" do
+		command "pip install pytz"
+		action :run
+	end
+	execute "django" do
+		not_if "django-admin.py"
+		command "pip install -U django"
+		action :run
+	end
+	
+when "redhat", "centos", "fedora"
+	execute "django_nose-pip" do
+		command "easy_install install django_nose"
+		action :run
+	end
+	execute "pytz-pip" do
+		command "easy_install install pytz"
+		action :run
+	end
+	execute "django" do
+		not_if "django-admin.py"
+		command "easy_install install -U django"
+		action :run
+	end
 end
 
-execute "pytz-pip" do
-	command "pip install pytz"
-	action :run
-end
 
-execute "django" do
-	not_if "django-admin.py"
-	command "pip install -U django"
-	action :run
-end
+
 
 # python module apt-get
+when "ubuntu", "debian"
+	package "python-scipy" do
+		action :install
+	end
+	
+	package "python-mysqldb" do
+		action :install
+	end
+	
+	package "python-matplotlib" do
+		action :install
+	end
+when "redhat", "centos", "fedora"
+	package "python-scipy" do
+		action :install
+	end
+	
+	package "MySQL-python" do
+		action :install
+	end
+	
+	package "python-matplotlib" do
+		action :install
+	end
 
-package "python-scipy" do
-	action :install
 end
 
-package "python-mysqldb" do
-	action :install
-end
-
-package "python-matplotlib" do
-	action :install
-end
 
 # install wadofstuff
 
