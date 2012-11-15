@@ -79,11 +79,7 @@ when "ubuntu", "debian"
 	    notifies :restart, "service[ganglia-monitor]"
 	end
 	
-	service "ganglia-monitor" do
-	    pattern "gmond"
-	  	supports :restart => true
-	  	action [ :enable, :start ]
-	end
+	
 when "redhat", "centos", "fedora"
 	package "ganglia-gmond" do
 		action :install
@@ -97,13 +93,13 @@ when "redhat", "centos", "fedora"
 	    notifies :restart, "service[ganglia-monitor]"
 	end
 	
-	service "ganglia-gmond" do
-	    pattern "gmond"
-	  	supports :restart => true
-	  	action [ :enable, :start ]
-	end
 end
 
+service "ganglia-monitor" do
+	pattern "gmond"
+	supports :restart => true
+	action [ :enable, :start ]
+end
 
 case node["platform"]
 when "ubuntu", "debian"
@@ -119,11 +115,7 @@ when "ubuntu", "debian"
 	    notifies :restart, "service[gmetad]"
 	end
 	
-	service "gmetad" do
-	    pattern "gmetad"
-	  	supports :restart => true
-	  	action [ :enable, :start ]
-	end
+	
 when "redhat", "centos", "fedora"
 	package "ganglia-gmetad" do
 		action :install
@@ -137,13 +129,13 @@ when "redhat", "centos", "fedora"
 	    notifies :restart, "service[gmetad]"
 	end
 	
-	service "ganglia-gmetad" do
-	    pattern "gmetad"
-	  	supports :restart => true
-	  	action [ :enable, :start ]
-	end
 end
 
+service "gmetad" do
+    pattern "gmetad"
+  	supports :restart => true
+  	action [ :enable, :start ]
+end
 
 
 
