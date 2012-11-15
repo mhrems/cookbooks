@@ -84,7 +84,6 @@ when "ubuntu", "debian"
 	  	supports :restart => true
 	  	action [ :enable, :start ]
 	end
-		
 when "redhat", "centos", "fedora"
 	package "ganglia-gmond" do
 		action :install
@@ -100,7 +99,7 @@ when "redhat", "centos", "fedora"
 end
 
 
-
+case node["platform"]
 when "ubuntu", "debian"
 	package "gmetad" do
 		action :install
@@ -120,7 +119,6 @@ when "ubuntu", "debian"
 	  	supports :restart => true
 	  	action [ :enable, :start ]
 	end
-	
 when "redhat", "centos", "fedora"
 	package "ganglia-gmetad" do
 		action :install
