@@ -12,12 +12,7 @@
 # install ems package
 # ntpdate ntp.ubuntu.com
 
-when "ubuntu", "debian"
-	
-	echo "123"
-when "redhat", "centos", "fedora"
-	echo "456"
-end
+
 
 # install ems package
 
@@ -45,6 +40,10 @@ package "mysql-server" do
 	action :install
 end
 
+service "mysql" do
+    action :start
+end
+
 execute "assign-root-password" do
 	not_if "mysql -u root -p#{node[:ems][:database_mysql_password]}"
 	command "mysqladmin -u root password #{node[:ems][:database_mysql_password]}"
@@ -64,43 +63,82 @@ end
 # yum install ganglia-gmetad
 # chkconfig gmetad on
 # service gmetad start
-package "ganglia-monitor" do
-	action :install
+
+
+case node["platform"]
+when "ubuntu", "debian"
+	package "ganglia-monitor" do
+		action :install
+	end
+	
+	template "/etc/ganglia/gmond.conf" do
+	    source "gmond.conf.erb"
+	    variables( :cluster_name => node[:gmond][:cluster_name],
+	               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
+	               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
+	    notifies :restart, "service[ganglia-monitor]"
+	end
+	
+	service "ganglia-monitor" do
+	    pattern "gmond"
+	  	supports :restart => true
+	  	action [ :enable, :start ]
+	end
+		
+when "redhat", "centos", "fedora"
+	package "ganglia-gmond" do
+		action :install
+	end
+	
+	template "/etc/ganglia/gmond.conf" do
+	    source "gmond.conf.erb"
+	    variables( :cluster_name => node[:gmond][:cluster_name],
+	               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
+	               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
+	    notifies :restart, "service[ganglia-monitor]"
+	end
 end
 
-template "/etc/ganglia/gmond.conf" do
-    source "gmond.conf.erb"
-    variables( :cluster_name => node[:gmond][:cluster_name],
-               :udp_send_channel_ip => node[:gmond][:udp_send_channel_ip],
-               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
-    notifies :restart, "service[ganglia-monitor]"
+
+
+when "ubuntu", "debian"
+	package "gmetad" do
+		action :install
+	end
+	
+
+	template "/etc/ganglia/gmetad.conf" do
+	    source "gmetad.conf.erb"
+	    variables( :data_source => node[:gmetad][:data_source],
+	               :xml_port => node[:gmetad][:xml_port],
+	               :trusted_hosts => node[:gmetad][:trusted_hosts] )
+	    notifies :restart, "service[gmetad]"
+	end
+	
+	service "gmetad" do
+	    pattern "gmetad"
+	  	supports :restart => true
+	  	action [ :enable, :start ]
+	end
+	
+when "redhat", "centos", "fedora"
+	package "ganglia-gmetad" do
+		action :install
+	end
+	
+	template "/etc/ganglia/gmetad.conf" do
+	    source "gmetad.conf.erb"
+	    variables( :data_source => node[:gmetad][:data_source],
+	               :xml_port => node[:gmetad][:xml_port],
+	               :trusted_hosts => node[:gmetad][:trusted_hosts] )
+	    notifies :restart, "service[gmetad]"
+	end
 end
 
-service "ganglia-monitor" do
-    pattern "gmond"
-  	supports :restart => true
-  	action [ :enable, :start ]
-end
-
-package "gmetad" do
-	action :install
-end
 
 
 
-template "/etc/ganglia/gmetad.conf" do
-    source "gmetad.conf.erb"
-    variables( :data_source => node[:gmetad][:data_source],
-               :xml_port => node[:gmetad][:xml_port],
-               :trusted_hosts => node[:gmetad][:trusted_hosts] )
-    notifies :restart, "service[gmetad]"
-end
 
-service "gmetad" do
-    pattern "gmetad"
-  	supports :restart => true
-  	action [ :enable, :start ]
-end
 
 
 
@@ -121,6 +159,8 @@ end
 package "python-pip" do
 	action :install
 end
+
+case node["platform"]
 when "ubuntu", "debian"
 	execute "django_nose-pip" do
 		command "pip install django_nose"
@@ -156,6 +196,7 @@ end
 
 
 # python module apt-get
+case node["platform"]
 when "ubuntu", "debian"
 	package "python-scipy" do
 		action :install
