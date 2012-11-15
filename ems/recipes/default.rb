@@ -158,14 +158,6 @@ when "redhat", "centos", "fedora"
 	
 end
 
-
-
-
-
-
-
-
-
 package "fabric" do
 	action :install
 end
@@ -202,16 +194,16 @@ when "ubuntu", "debian"
 	
 when "redhat", "centos", "fedora"
 	execute "django_nose-pip" do
-		command "easy_install install django_nose"
+		command "easy_install django-nose"
 		action :run
 	end
 	execute "pytz-pip" do
-		command "easy_install install pytz"
+		command "easy_install pytz"
 		action :run
 	end
 	execute "django" do
 		not_if "django-admin.py"
-		command "easy_install install -U django"
+		command "easy_install -U django"
 		action :run
 	end
 end
@@ -234,15 +226,16 @@ when "ubuntu", "debian"
 		action :install
 	end
 when "redhat", "centos", "fedora"
-	package "python-scipy" do
+	
+	package "scipy.x86_64" do
 		action :install
 	end
-	
+
 	package "MySQL-python" do
 		action :install
 	end
 	
-	package "python-matplotlib" do
+	package "python-matplotlib.x86_64" do
 		action :install
 	end
 
