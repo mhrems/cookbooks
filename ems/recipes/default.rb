@@ -40,8 +40,19 @@ package "mysql-server" do
 	action :install
 end
 
-service "mysql" do
-    action :start
+
+
+case node["platform"]
+when "ubuntu", "debian"
+	service "mysql" do
+	    action :start
+	end
+when "redhat", "centos", "fedora"
+	service "mysql" do
+		service_name :"mysqld"
+	    action :start
+	end
+	
 end
 
 execute "assign-root-password" do
@@ -79,7 +90,11 @@ when "ubuntu", "debian"
 	    notifies :restart, "service[ganglia-monitor]"
 	end
 	
-	
+	service "ganglia-monitor" do
+		pattern "gmond"
+		supports :restart => true
+		action [ :enable, :start ]
+	end
 when "redhat", "centos", "fedora"
 	package "ganglia-gmond" do
 		action :install
@@ -92,14 +107,15 @@ when "redhat", "centos", "fedora"
 	               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
 	    notifies :restart, "service[ganglia-monitor]"
 	end
-	
+	service "ganglia-monitor" do
+		service_name "gmond"
+		pattern "gmond"
+		supports :restart => true
+		action [ :enable, :start ]
+	end
 end
 
-service "ganglia-monitor" do
-	pattern "gmond"
-	supports :restart => true
-	action [ :enable, :start ]
-end
+
 
 case node["platform"]
 when "ubuntu", "debian"
@@ -115,7 +131,11 @@ when "ubuntu", "debian"
 	    notifies :restart, "service[gmetad]"
 	end
 	
-	
+	service "gmetad" do
+	    pattern "gmetad"
+	  	supports :restart => true
+	  	action [ :enable, :start ]
+	end
 when "redhat", "centos", "fedora"
 	package "ganglia-gmetad" do
 		action :install
@@ -129,13 +149,16 @@ when "redhat", "centos", "fedora"
 	    notifies :restart, "service[gmetad]"
 	end
 	
+	service "ganglia-monitor" do
+		service_name "gmetad"
+		pattern "gmond"
+		supports :restart => true
+		action [ :enable, :start ]
+	end
+	
 end
 
-service "gmetad" do
-    pattern "gmetad"
-  	supports :restart => true
-  	action [ :enable, :start ]
-end
+
 
 
 
