@@ -96,6 +96,12 @@ when "redhat", "centos", "fedora"
 	               :udp_send_channel_port => node[:gmond][:udp_send_channel_port] )
 	    notifies :restart, "service[ganglia-monitor]"
 	end
+	
+	service "ganglia-gmond" do
+	    pattern "gmond"
+	  	supports :restart => true
+	  	action [ :enable, :start ]
+	end
 end
 
 
@@ -104,7 +110,6 @@ when "ubuntu", "debian"
 	package "gmetad" do
 		action :install
 	end
-	
 
 	template "/etc/ganglia/gmetad.conf" do
 	    source "gmetad.conf.erb"
@@ -130,6 +135,12 @@ when "redhat", "centos", "fedora"
 	               :xml_port => node[:gmetad][:xml_port],
 	               :trusted_hosts => node[:gmetad][:trusted_hosts] )
 	    notifies :restart, "service[gmetad]"
+	end
+	
+	service "ganglia-gmetad" do
+	    pattern "gmetad"
+	  	supports :restart => true
+	  	action [ :enable, :start ]
 	end
 end
 
