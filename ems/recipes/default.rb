@@ -49,7 +49,7 @@ when "ubuntu", "debian"
 	end
 when "redhat", "centos", "fedora"
 	service "mysql" do
-		service_name :"mysqld"
+		service_name "mysqld"
 	    action :start
 	end
 	
@@ -149,9 +149,9 @@ when "redhat", "centos", "fedora"
 	    notifies :restart, "service[gmetad]"
 	end
 	
-	service "ganglia-monitor" do
+	service "gmetad" do
 		service_name "gmetad"
-		pattern "gmond"
+		pattern "gmetad"
 		supports :restart => true
 		action [ :enable, :start ]
 	end
