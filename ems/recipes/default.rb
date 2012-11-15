@@ -229,7 +229,7 @@ when "ubuntu", "debian"
 when "redhat", "centos", "fedora"
 	
 	execute "scipy.x86_64" do
-		command :"yum install -y scipy.x86_64"
+		command "yum install -y scipy.x86_64"
 	end
 
 	package "MySQL-python" do
@@ -237,7 +237,7 @@ when "redhat", "centos", "fedora"
 	end
 	
 	execute "python-matplotlib.x86_64" do
-		command :"yum install -y python-matplotlib.x86_64"
+		command "yum install -y python-matplotlib.x86_64"
 	end
 
 end
