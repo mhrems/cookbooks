@@ -241,7 +241,7 @@ when "redhat", "centos", "fedora"
 	end
 	
 	execute "python-matplotlib.x86_64" do
-		command "yum-builddep python-matplotlib"
+		command "yum-builddep -y python-matplotlib"
 	end
 
 	execute "clone matplotlib" do
