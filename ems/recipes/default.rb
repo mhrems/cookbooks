@@ -236,8 +236,24 @@ when "redhat", "centos", "fedora"
 		action :install
 	end
 	
+	package "yum-utils" do
+		action :install
+	end
+	
 	execute "python-matplotlib.x86_64" do
-		command "yum install -y python-matplotlib.x86_64"
+		command "yum-builddep python-matplotlib"
+	end
+
+	execute "clone matplotlib" do
+		cwd "/root"
+		command "git clone git://github.com/matplotlib/matplotlib.git"
+		action :run
+	end
+	
+	execute "setup matplotlib" do
+		cwd "/root/matplotlib"
+		command "python setup.py install"
+		action :run
 	end
 
 end
