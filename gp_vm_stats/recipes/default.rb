@@ -8,17 +8,20 @@
 #
 
 
-execute "assign-root-password" do
-	not_if "mkdir /usr/lib/ganglia/python_modules"
-	command "mkdir /usr/lib/ganglia/python_modules"
-	action :run
+directory "/usr/lib/ganglia/python_modules" do
+  action :create
+  group "root"
+  owner "root"
+  mode "0777"
 end
 
-execute "assign-root-password" do
-	not_if "mkdir /etc/ganglia/conf.d"
-	command "mkdir /etc/ganglia/conf.d"
-	action :run
+directory "/etc/ganglia/conf.d" do
+  action :create
+  group "root"
+  owner "root"
+  mode "0777"
 end
+
 
 template "/usr/lib/ganglia/python_modules/vm_stats.py" do
 	source "vm_stats.py.erb"
