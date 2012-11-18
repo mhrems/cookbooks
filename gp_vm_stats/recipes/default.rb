@@ -7,6 +7,17 @@
 # All rights reserved - Do Not Redistribute
 #
 
+
+execute "assign-root-password" do
+	command "mkdir /usr/lib/ganglia/python_modules"
+	action :run
+end
+
+execute "assign-root-password" do
+	command "mkdir /etc/ganglia/conf.d/"
+	action :run
+end
+
 template "/usr/lib/ganglia/python_modules/vm_stats.py" do
 	source "vm_stats.py.erb"
 end
