@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-template "/usr/lib64/ganglia/python_modules/vm_stats.py" do
+template "/usr/lib/ganglia/python_modules/vm_stats.py" do
 	source "vm_stats.py.erb"
 end
 
