@@ -9,12 +9,14 @@
 
 
 execute "assign-root-password" do
+	not_if "mkdir /usr/lib/ganglia/python_modules"
 	command "mkdir /usr/lib/ganglia/python_modules"
 	action :run
 end
 
 execute "assign-root-password" do
-	command "mkdir /etc/ganglia/conf.d/"
+	not_if "mkdir /etc/ganglia/conf.d"
+	command "mkdir /etc/ganglia/conf.d"
 	action :run
 end
 
